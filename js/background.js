@@ -10,7 +10,7 @@ function getBookmarkSubTree(id) {
 			resolve(nullNode);
 		}
 		else {
-			chrome.bookmarks.getSubTree(''+id, (nodes) => {
+			chrome.bookmarks.getSubTree(""+id, (nodes) => {
 				resolve(nodes[0]);
 			});
 		}
@@ -48,9 +48,9 @@ function getCandidateNodes(nodes, base) {
 class State {
 	constructor(root) {
 		this.root = root;
-		this.path = '';
+		this.path = "";
 		this.dirs = [];
-		this.base = '';
+		this.base = "";
 		this.depth = 0;
 		this.nodes = [];
 		this.currentNode;
@@ -63,9 +63,9 @@ class State {
 	update(_path) {
 		return new Promise(async resolve => {
 			// Remove it if the first character is '/'
-			this.path = (_path[0] === '/')? _path.slice(1) : _path;
+			this.path = (_path[0] === "/")? _path.slice(1) : _path;
 
-			const _parsed = _path.split('/');
+			const _parsed = _path.split("/");
 			const _dirs = _parsed.slice(0, -1);
 			const _base = _parsed.slice(-1)[0];
 			const _depth = _dirs.length;
@@ -116,13 +116,13 @@ class State {
 		return new Promise(resolve => {
 			if (! this.currentNode.children)
 				resolve(-1);  // Wrong Bookmark Path
-			else if (this.depth === 0 && this.base === '')
+			else if (this.depth === 0 && this.base === "")
 				resolve(1);   // No Input
-			else if (this.depth === 0 && this.base !== '')
+			else if (this.depth === 0 && this.base !== "")
 				resolve(2);   // /B abc
-			else if (this.depth   > 0 && this.base === '')
+			else if (this.depth   > 0 && this.base === "")
 				resolve(3);   // /B abc/def/
-			else if (this.depth   > 0 && this.base !== '')
+			else if (this.depth   > 0 && this.base !== "")
 				resolve(4);	  // /B abc/def/gh
 		});
 	}
@@ -134,8 +134,8 @@ var state;
 chrome.storage.sync.get(["rootDir"], (result) => {
 	let root = 0;
     if (result.rootDir) {
-    	let parsedRootDir = result.rootDir.split('/');
-    	if (parsedRootDir[0] === '') parsedRootDir = parsedRootDir.slice(1);
+    	let parsedRootDir = result.rootDir.split("/");
+    	if (parsedRootDir[0] === "") parsedRootDir = parsedRootDir.slice(1);
 
     	getBookmarkSubTree(root).then(async (node) =>{
 	    	for (let i = 0; i < parsedRootDir.length; i++) {
@@ -166,7 +166,7 @@ function noDefaultSuggestion() {
 }
 
 function updateDefaultSuggestion(plain, match) {
-	let description = '';
+	let description = "";
 	if (plain)
 		description += plain;
 	if (match)
@@ -234,10 +234,10 @@ async function omniboxInputChangedHandler (text, suggest) {
 			break;
 		case 3:  // /B abc/de/
 		case 4:  // /B abc/de/fg
-			plain = state.dirs.join('/') + '/';
+			plain = state.dirs.join("/") + "/";
 			updateDefaultSuggestion(plain, state.base);
 			candidateNodes = await getCandidateNodes(state.currentNode.children, state.base);
-			suggestions = await makeSuggestions(candidateNodes, state.dirs.join('/')+'/');
+			suggestions = await makeSuggestions(candidateNodes, state.dirs.join("/")+"/");
 			suggest(suggestions);
 			break;
 		default:  // No Bookmarks Found
@@ -248,19 +248,19 @@ async function omniboxInputChangedHandler (text, suggest) {
 
 async function omniboxInputEnteredHandler (text, disposition) {
 	// Entered URL
-	if (text.slice(0, 4) === 'http')
+	if (text.slice(0, 4) === "http")
 		navigate(text);
 	// Entered Bookmarklet
-	// else if (text.slice(0, 10) === 'javascript') {
+	// else if (text.slice(0, 10) === "javascript") {
 	// 	chrome.tabs.executeScript(null, {code: code});
 	// }
 	// Entered Bookmark Directory
 	else {
-		const base = text.split('/').slice(-1)[0];
+		const base = text.split("/").slice(-1)[0];
 		const children = state.currentNode.children;
 		const node = await getSpecificTitleNode(children, base);
 		if (node.id) {
-			navigate('chrome://bookmarks/?id='+node.id);
+			navigate("chrome://bookmarks/?id="+node.id);
 		}
 	}
 }
