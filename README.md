@@ -5,7 +5,7 @@ Handle Your Bookmarks As PATH.
 
 
 ## Demo
-Coming soon...
+![DEMO GIF](./demo.gif)
 
 
 ## How To Use
